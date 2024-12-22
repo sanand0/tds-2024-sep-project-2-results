@@ -86,7 +86,7 @@
 
       const cell = (value, max, outOf, decimals) => html`<td class="text-end" style="position: relative; min-width: 200px; padding-left: 0;">
         <div style="position: absolute; width: ${num2(+value / max * 100)}%; height: calc(100% - 1rem); background-color: var(--bs-warning)"></div>
-        <div style="position: relative; z-index: 1">${(+value).toFixed(decimals)} / ${(+outOf).toFixed(decimals)}</div>
+        <div style="position: relative; z-index: 1">${(+value).toFixed(decimals)}</div>
       </td>`;
 
       function sorted(iterable) {
@@ -114,8 +114,10 @@
             <tr>
               <th scole="col" role="button">#</th>
               <th scope="col" role="button" class="${sortClass(key)}" @click=${() => updateHash({ sort: key })}>${key}</th>
-              <th scope="col" role="button" class="${sortClass("marks")}" @click=${() => updateHash({ sort: 'marks' })} class="text-end">Marks</th>
-              <th scope="col" role="button" class="${sortClass("correct")}" @click=${() => updateHash({ sort: 'correct' })} class="text-end">Checks</th>
+              <th scope="col" role="button" class="text-end ${sortClass("marks")}" @click=${() => updateHash({ sort: 'marks' })}>Marks</th>
+              <th scope="col" role="button" class="text-end ${sortClass("total")}" @click=${() => updateHash({ sort: 'total' })}>Max Marks</th>
+              <th scope="col" role="button" class="text-end ${sortClass("correct")}" @click=${() => updateHash({ sort: 'correct' })}>Checks</th>
+              <th scope="col" role="button" class="text-end ${sortClass("tests")}" @click=${() => updateHash({ sort: 'tests' })}>Max Checks</th>
             </tr>
           </thead>
           <tbody>
@@ -124,7 +126,9 @@
                 <td>${id in links ? html`<a href="${links[id]}" target="_blank">${i + 1}</a>` : i + 1}</td>
                 <td role="button" class="${filterClass(key, id)}" @click=${() => updateHash({ [key]: id })}>${id}</td>
                 ${cell(marks, max.marks, total, 2)}
+                <td class="text-end">${(+total).toFixed(2)}</td>
                 ${cell(correct, max.correct, tests, 0)}
+                <td class="text-end">${(+tests).toFixed(2)}</td>
               </tr>`)}
           </tbody>
         </table>
