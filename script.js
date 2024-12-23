@@ -14,7 +14,32 @@ function parseGithubURL(url) {
     : { owner: parts[3], repo: parts[4], branch: parts[5] };
 }
 
-const data = await d3.csv("results.csv", d3.autoType);
+const pc = d3.format(".2%");
+
+const results = await d3.csv("results.csv", d3.autoType);
+
+// Add up to 8 bonus marks for diversity
+const similarity = await d3.csv("similarity.csv", d3.autoType);
+
+const marks_by_id = d3.rollup(
+  results,
+  (v) => d3.sum(v, (d) => d.marks),
+  (d) => d.id
+);
+for (const { id, max_jaccard, jaccard_1, jaccard_2, jaccard_3, similar_1, similar_2, similar_3 } of similarity) {
+  results.push({
+    test: "diversity",
+    reason: `Similar submissions were:
+${similar_1} (${pc(jaccard_1)})
+${similar_2} (${pc(jaccard_2)})
+${similar_3} (${pc(jaccard_3)})
+`,
+    marks: (marks_by_id.get(id) * (1 - max_jaccard) * 8) / 20,
+    total: 8,
+    id,
+    correct: 1,
+  });
+}
 
 // links[id] = URL of submission
 const submissions = await d3.csv("submissions.csv", d3.autoType);
@@ -36,10 +61,10 @@ async function renderTables(event) {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
   const sort = params.get("sort");
 
-  let filtered = data;
+  let filtered = results;
   // Handle filtering and tab selection
   for (const [key, value] of params) {
-    if (data.columns.includes(key)) filtered = filtered.filter((row) => row[key] === value);
+    if (results.columns.includes(key)) filtered = filtered.filter((row) => row[key] === value);
     if (key === "tab") {
       const $tab = document.querySelector(`#${value}-tab`);
       $tab.click();
