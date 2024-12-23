@@ -157,7 +157,7 @@ async function renderTables(event) {
           <tbody>
             ${sortedData.slice(0, 1000).map(
               ({ id, test, reason, marks, total }, i) => html` <tr>
-                <td>${id in links ? html`<a href="${links[id]}" target="_blank">${i + 1}</a>` : i + 1}</td>
+                <td>${id in links ? html`<a href="${links[id].link}" target="_blank">${i + 1}</a>` : i + 1}</td>
                 <td role="button" class="${filterClass("id", id)}" @click=${() => updateHash({ id })}>${id}</td>
                 <td role="button" class="${filterClass("test", test)}" @click=${() => updateHash({ test })}>${test}</td>
                 ${cell(marks, total, total, 2)}
