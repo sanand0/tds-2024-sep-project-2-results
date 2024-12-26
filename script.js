@@ -58,7 +58,7 @@ const links = Object.fromEntries(
  * @param {Event} [event] - Optional hashchange event
  */
 async function renderTables(event) {
-  const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const params = new URLSearchParams(location.hash.replace(/^#?/, ""));
   const sort = params.get("sort");
 
   let filtered = results;
@@ -66,8 +66,8 @@ async function renderTables(event) {
   for (const [key, value] of params) {
     if (results.columns.includes(key)) filtered = filtered.filter((row) => row[key] === value);
     if (key === "tab") {
-      const $tab = document.querySelector(`#${value}-tab`);
-      $tab.click();
+      const tabEl = document.querySelector(`#${value}-tab`);
+      if (tabEl) (new bootstrap.Tab(tabEl)).show();
     }
   }
 
@@ -114,7 +114,7 @@ async function renderTables(event) {
       if (updatedParams.get(key) === value) updatedParams.delete(key);
       else updatedParams.set(key, value);
     });
-    location.hash = updatedParams.toString();
+    location.hash = "?" + updatedParams.toString();
   };
   const sortClass = (key) => (sort == key ? "text-bg-primary" : "");
   const filterClass = (key, value) => (params.get(key) == value ? "text-bg-primary" : "");
@@ -204,3 +204,13 @@ await renderTables();
 document.querySelector("#loading").remove();
 // Listen for hash changes
 window.addEventListener("hashchange", renderTables);
+
+// Add Bootstrap tab change listener
+document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tabEl => {
+  tabEl.addEventListener('shown.bs.tab', event => {
+    const tabId = event.target.id.replace('-tab', '');
+    const params = new URLSearchParams(location.hash.replace(/^#?/, ""));
+    params.set('tab', tabId);
+    location.hash = '?' + params.toString();
+  });
+});
